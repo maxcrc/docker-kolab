@@ -20,7 +20,7 @@ RUN sed -i '/nodocs/d' /etc/yum.conf
 RUN yum -y install kolab
 
 # Install additional soft
-RUN yum -y install supervisor expect mod_ssl nginx php-fpm opendkim fail2ban git php-devel zlib-devel gcc pcre-devel dhclient
+RUN yum -y install expect mod_ssl nginx php-fpm opendkim fail2ban git php-devel zlib-devel gcc pcre-devel dhclient
 
 #Update php-zlib
 RUN pecl install zip
@@ -44,15 +44,8 @@ RUN sed -i 's|"/var/spool/amavisd/clamd.sock"|"127.0.0.1:3310"|' /etc/amavisd/am
  && usermod -a -G clam -G amavis clam \
  && usermod -a -G clam -G amavis amavis
 
-# Ports: HTTP HTTPS SMTP SMTPS POP3 POP3S IMAP IMAPS SIEVE LDAPS
-EXPOSE  80 443 25 587 143 993 110 995 4190 636
-VOLUME ["/data"]
-ENTRYPOINT ["/bin/start.sh"]
-
 # Add config and setup script, run it
-ADD service-wrapper.sh /bin/service-wrapper.sh
 ADD set_spam_sieve.sh /bin/set_spam_sieve.sh
-ADD configs/supervisord.conf /etc/supervisord.conf
 ADD configs/nginx/letsencrypt.conf /etc/nginx/letsencrypt.conf
 ADD configs/nginx/kolab.conf /etc/nginx/kolab.conf
 ADD configs/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
@@ -61,3 +54,9 @@ ADD configs/php-fpm.d/* /etc/php-fpm.d/
 ADD configs/fail2ban/jail.conf /etc/fail2ban/jail.conf
 ADD configs/fail2ban/filter.d/* /etc/fail2ban/filter.d/
 ADD start.sh /bin/start.sh
+
+# Ports: HTTP HTTPS SMTP SMTPS POP3 POP3S IMAP IMAPS SIEVE LDAPS
+EXPOSE  80 443 25 587 143 993 110 995 4190 636
+VOLUME ["/data"]
+ENTRYPOINT ["/bin/start.sh"]
+
