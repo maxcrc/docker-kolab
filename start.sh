@@ -587,41 +587,47 @@ postfix_milter()
     fi
 }
 
+services=(
+        'kolab-saslauthd'
+        'wallace'
+        'amavisd'
+        'postfix'
+        'opendkim'
+        'dirsrv'
+        'php-fpm'
+        'nginx'
+        'clamd'
+        'kolabd'
+        'mysqld'
+        'fail2ban'
+        'rsyslog'
+        'cyrus-imapd'
+)
+
 stop_services()
 {
     echo "info:  stopping services"
-    services=(
-        amavisd
-        clamd
-        cyrus-imapd
-        dirsrv
-        fail2ban
-        httpd
-        kolabd
-        kolab-saslauthd
-        mysqld
-        nginx
-        opendkim
-        php-fpm
-        postfix
-        rsyslog
-        wallace
-    )
-    for i in "${services[@]}"; do service $i stop; done
 
-    #Kill Apache
-    pkill httpd
+	for (( idx=${#services[@]}-1 ; idx>=0 ; idx-- )) ; do
+		echo "Stopping service ${services[idx]}..."
+		service ${services[idx]} stop
+	done
 
     echo "info:  finished stopping services"
 }
 
 start_services()
 {
-         echo "info:  Starting services"
-         crond
-         tail -f -n 0 /var/log/maillog &
-         /usr/bin/supervisord
-} 
+    echo "info:  Starting services"
+
+	for i in "${services[@]}"
+	do
+        echo "Starting service ${i}..."
+        service "${i}" start 
+	done
+	
+	tail -f /var/log/maillog
+}
 
 [ -d /data/etc/dirsrv/slapd-* ] || export FIRST_SETUP=true #Check for first setup
 
@@ -646,5 +652,5 @@ start_services()
 [ "$ROUNDCUBE_TRASH" = true ]           && roundcube_trash_folder
 [ ! -z "$EXT_MILTER_ADDR" ]             && postfix_milter
 [ "$FIRST_SETUP" = true ]               && stop_services
-
+trap "{ stop_services ; exit 0; }" EXIT
                                            start_services
