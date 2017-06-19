@@ -608,6 +608,9 @@ stop_services()
 {
     echo "info:  stopping services"
 
+	service httpd stop
+	kill -9 $(pidof httpd)
+	
 	for (( idx=${#services[@]}-1 ; idx>=0 ; idx-- )) ; do
 		echo "Stopping service ${services[idx]}..."
 		service ${services[idx]} stop
