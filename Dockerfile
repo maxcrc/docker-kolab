@@ -26,7 +26,7 @@ RUN yum -y install expect mod_ssl nginx php-fpm opendkim fail2ban git php-devel 
 RUN pecl install zip
 
 #Install zipdownload
-RUN git clone https://github.com/roundcube/roundcubemail/ --depth 1 /tmp/roundcube \
+RUN git clone https://github.com/roundcube/roundcubemail/ -b release-1.1 --depth 1 /tmp/roundcube \
  && mv /tmp/roundcube/plugins/zipdownload/ /usr/share/roundcubemail/plugins/ \
  && rm -rf /tmp/roundcube/
 
